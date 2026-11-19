@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.next-dev/
+data/*
+!.gitkeep
+.env*
+!.env.example
+tsconfig.tsbuildinfo
+*.db-wal
+*.db-shm
+npm-debug.log
+
+.vercel
+.env*
