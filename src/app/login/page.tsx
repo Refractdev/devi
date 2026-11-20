@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, CheckCircle2, LockKeyhole } from 'lucide-react';
 import { getSupabaseBrowser } from '@/lib/supabase/browser';
 
@@ -8,6 +8,13 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  useEffect(()=>{
+    const params=new URLSearchParams(window.location.search);
+    const reason=params.get('error');
+    if(reason==='not_allowed')setError('This Google account is not on the workspace allowlist.');
+    else if(reason==='workspace')setError('Your Google account was accepted, but the workspace is not provisioned yet.');
+    else if(reason==='auth')setError('Google sign-in could not be completed. Check the Supabase Google provider and callback URL.');
+  },[]);
   async function submit() {
     setBusy(true); setNotice(''); setError('');
     try {

@@ -1,5 +1,5 @@
 import 'server-only';
-import { createServerClient } from '@supabase/ssr/dist/main/createServerClient.js';
+import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { supabasePublicConfig, supabaseServerConfig } from './config';

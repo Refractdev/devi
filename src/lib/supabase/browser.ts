@@ -1,6 +1,6 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr/dist/main/createBrowserClient.js';
+import { createBrowserClient } from '@supabase/ssr';
 import { supabasePublicConfig } from './config';
 
 let browserClient: ReturnType<typeof createBrowserClient> | null = null;
