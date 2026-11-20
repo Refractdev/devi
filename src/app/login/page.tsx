@@ -26,7 +26,7 @@ export default function LoginPage() {
     finally { setBusy(false); }
   }
   return <main className="login-shell"><section className="login-panel">
-    <div className="login-brand"><span className="brand-symbol"><span>D</span></span><div><b>DEVREFRACT</b><small>OUTREACH WORKSPACE</small></div></div>
+    <div className="login-brand"><span className="brand-symbol"><span>D</span></span><div><b>DEVREFRACT</b><small>PERSONAL OUTREACH</small></div></div>
     <div className="login-lock"><LockKeyhole size={18}/><span>PRIVATE WORKSPACE</span></div>
     <h1>Welcome back.</h1><p>Your leads, conversations, and next steps are waiting.</p>
     <button className="button-primary login-submit" onClick={()=>void submit()} disabled={busy}>{busy?'Opening Google…':'Sign in with Google'} <ArrowRight size={16}/></button>
