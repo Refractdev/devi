@@ -8,7 +8,6 @@ export async function GET(request:Request){
   const probe=request.headers.get('x-healthcheck-token');
   if(probe&&process.env.HEALTHCHECK_TOKEN&&probe===process.env.HEALTHCHECK_TOKEN){const admin=getSupabaseAdmin();if(!admin)return NextResponse.json({status:'degraded'},{status:503});const {data:workspace}=await admin.from('workspaces').select('id').limit(1).maybeSingle();if(!workspace)return NextResponse.json({status:'workspace_missing'},{status:503});const {data,error}=await admin.rpc('worker_health_snapshot',{target_workspace:workspace.id});if(error)return NextResponse.json({status:'degraded'},{status:503});const recent=(data.workers||[]).some((worker:any)=>Date.now()-Date.parse(worker.heartbeat_at)<10*60_000);return recent?NextResponse.json({status:'ok'}):NextResponse.json({status:'worker_stale'},{status:503});}
   const context=await getWorkspaceContext();
-  if(!context.user)return NextResponse.json({error:'Authentication required.'},{status:401});
   if(!context.workspaceId)return NextResponse.json({error:'Workspace unavailable.'},{status:503});
   const admin=getSupabaseAdmin();if(!admin)return NextResponse.json({error:'Database unavailable.'},{status:503});
   const {data,error}=await admin.rpc('worker_health_snapshot',{target_workspace:context.workspaceId});

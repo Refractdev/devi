@@ -6,7 +6,6 @@ import { readCloudSecret } from '@/lib/supabase/vault';
 
 export async function GET(request: Request) {
   const context = await getWorkspaceContext();
-  if (!context.user) return Response.json({ error: 'Authentication required.' }, { status: 401 });
   if (!context.workspaceId) return Response.json({ error: 'Workspace is not provisioned.' }, { status: 503 });
   const admin = getSupabaseAdmin();
   if (!admin) return Response.json({ error: 'Supabase server credentials are missing.' }, { status: 503 });
@@ -24,7 +23,8 @@ export async function GET(request: Request) {
   const oauth = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
   const state = crypto.randomBytes(32).toString('base64url');
   const stateHash = crypto.createHash('sha256').update(state).digest('hex');
-  const { error: stateError } = await admin.from('oauth_states').insert({ state_hash: stateHash, workspace_id: context.workspaceId, user_id: context.user.id, reconnect_account_id: reconnectAccountId, expires_at: new Date(Date.now() + 10 * 60_000).toISOString() });
+  if (!context.actorId) return Response.json({ error: 'Workspace owner is not configured.' }, { status: 503 });
+  const { error: stateError } = await admin.from('oauth_states').insert({ state_hash: stateHash, workspace_id: context.workspaceId, user_id: context.actorId, reconnect_account_id: reconnectAccountId, expires_at: new Date(Date.now() + 10 * 60_000).toISOString() });
   if (stateError) return Response.json({ error: 'Could not initialize secure Google sign-in.' }, { status: 503 });
   return NextResponse.redirect(oauth.generateAuthUrl({ access_type: 'offline', prompt: 'consent', state, scope: ['https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/userinfo.email'] }));
 }

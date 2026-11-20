@@ -6,7 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const context = await getWorkspaceContext();
-  if (!context.user) return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
   if (!context.workspaceId) return NextResponse.json({ error: 'Workspace is not provisioned.' }, { status: 503 });
   try {
     return NextResponse.json(await loadCloudWorkspace(context.workspaceId));
@@ -17,7 +16,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const context = await getWorkspaceContext();
-  if (!context.user) return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
   if (!context.workspaceId) return NextResponse.json({ error: 'Workspace is not provisioned.' }, { status: 503 });
   try {
     return NextResponse.json(await dispatchCloudAction(context.workspaceId, await request.json()));

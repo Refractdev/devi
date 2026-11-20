@@ -30,13 +30,22 @@ export function getSupabaseAdmin() {
 export async function getWorkspaceContext() {
   const userClient = await getSupabaseServer();
   const admin = getSupabaseAdmin();
-  if (!userClient || !admin) return { user: null, workspaceId: null, userClient: null, admin: null };
-  const { data: { user }, error } = await userClient.auth.getUser();
-  if (error || !user) return { user: null, workspaceId: null, userClient, admin };
+  if (!admin) return { user: null, workspaceId: null, actorId: null, userClient, admin };
+  const { data: { user }, error } = userClient ? await userClient.auth.getUser() : { data: { user: null }, error: null };
+  // This is a single-operator workspace. Unless explicitly disabled, allow the
+  // private deployment to open directly without a second app login screen.
+  // Gmail still asks Google for consent when a sending account is connected.
+  if (error || !user) {
+    if (process.env.PERSONAL_WORKSPACE_MODE !== 'false') {
+      const { data: owner } = await admin.from('workspace_members').select('workspace_id,user_id').order('created_at', { ascending: true }).limit(1).maybeSingle();
+      if (owner?.workspace_id) return { user: null, workspaceId: String(owner.workspace_id), actorId: String(owner.user_id), userClient, admin };
+    }
+    return { user: null, workspaceId: null, actorId: null, userClient, admin };
+  }
   const { data: membership, error: membershipError } = await admin
     .from('workspace_members').select('workspace_id,role').eq('user_id', user.id).maybeSingle();
   if (membershipError || !membership?.workspace_id) {
-    return { user, workspaceId: null, userClient, admin };
+    return { user, workspaceId: null, actorId: user.id, userClient, admin };
   }
-  return { user, workspaceId: String(membership.workspace_id), userClient, admin };
+  return { user, workspaceId: String(membership.workspace_id), actorId: user.id, userClient, admin };
 }

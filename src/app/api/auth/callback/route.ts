@@ -12,12 +12,12 @@ export async function GET(request: Request) {
   home.searchParams.set('tab', 'SETTINGS');
   const context = await getWorkspaceContext();
   const admin = getSupabaseAdmin();
-  if (!context.user || !context.workspaceId || !admin || !code || !state) {
+  if (!context.workspaceId || !context.actorId || !admin || !code || !state) {
     home.searchParams.set('error', 'oauth_state');
     return NextResponse.redirect(home);
   }
   const stateHash = crypto.createHash('sha256').update(state).digest('hex');
-  const { data: stateRow, error: stateError } = await admin.from('oauth_states').select('*').eq('state_hash', stateHash).eq('workspace_id', context.workspaceId).eq('user_id', context.user.id).gt('expires_at', new Date().toISOString()).maybeSingle();
+  const { data: stateRow, error: stateError } = await admin.from('oauth_states').select('*').eq('state_hash', stateHash).eq('workspace_id', context.workspaceId).eq('user_id', context.actorId).gt('expires_at', new Date().toISOString()).maybeSingle();
   if (stateError || !stateRow) {
     home.searchParams.set('error', 'oauth_state');
     return NextResponse.redirect(home);
