@@ -1,4 +1,3 @@
-import './style.css';
 import './design-system.css';
 import type { Metadata } from 'next';
 import PwaRegister from './pwa-register';
